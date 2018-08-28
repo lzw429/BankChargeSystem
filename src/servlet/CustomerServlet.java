@@ -11,13 +11,14 @@ import java.io.IOException;
 public class CustomerServlet extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        RequestDispatcher requestDispatcher = request.getRequestDispatcher("customer.jsp");
-        requestDispatcher.forward(request, response);
+        doPost(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        super.doGet(request, response);
+        super.doPost(request, response);
+        RequestDispatcher requestDispatcher = request.getRequestDispatcher("customer.jsp");
+        requestDispatcher.forward(request, response);
     }
 
 }

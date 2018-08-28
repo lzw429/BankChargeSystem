@@ -26,6 +26,4 @@ public class UserServiceImpl implements UserService {
         System.out.println("login as " + username + " " + password);
         return null;
     }
-
-
 }

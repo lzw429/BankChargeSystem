@@ -44,11 +44,11 @@ public class UserDaoImpl implements UserDao {
         PreparedStatement stm = null;
         try {
             conn = DBUtil.connectDB(); // 连接数据库
-            stm = conn.prepareStatement("SELECT CUSTOMER_ID,CUSTOMER_NAME,ADDRESS,BALANCE FROM CUSTOMER WHERE CUSTOMER_ID = ?"); // 获取用户基本信息
+            stm = conn.prepareStatement("SELECT CUSTOMER_ID,PASSWORD,CUSTOMER_NAME,ADDRESS,BALANCE FROM CUSTOMER WHERE CUSTOMER_ID = ?"); // 获取用户基本信息
             stm.setString(1, username);
             ResultSet rs = stm.executeQuery();
             if (rs.next()) {
-                User user = new User(rs.getString("CUSTOMER_ID"), rs.getString("CUSTOMER_NAME"), rs.getString("ADDRESS"), rs.getString("BALANCE"));
+                User user = new User(rs.getString("CUSTOMER_ID"), rs.getString("CUSTOMER_NAME"), rs.getString("PASSWORD"), rs.getString("ADDRESS"), rs.getString("BALANCE"));
                 rs.close();
                 return user;
             } else return null;
@@ -60,10 +60,5 @@ public class UserDaoImpl implements UserDao {
             DBUtil.safeClose(stm);
             DBUtil.safeClose(conn);
         }
-    }
-
-    @Override
-    public boolean login(String username, String password) {
-        return false;
     }
 }

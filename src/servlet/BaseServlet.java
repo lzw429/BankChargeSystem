@@ -9,13 +9,14 @@ import java.io.IOException;
 
 @WebServlet("/BaseServlet")
 public class BaseServlet extends HttpServlet {
-    public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try {
-            request.setCharacterEncoding("UTF-8");
-            response.setCharacterEncoding("UTF-8");
-        } catch (Exception e) {
-            response.sendError(404, e.getMessage());
-        }
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doPost(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
     }
 }
-

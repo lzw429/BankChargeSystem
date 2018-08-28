@@ -49,9 +49,10 @@ public class User implements Serializable {
         this.BALANCE = BALANCE;
     }
 
-    public User(String username, String CUSTOMER_NAME, String ADDRESS, String BALANCE) {
+    public User(String username, String CUSTOMER_NAME, String password, String ADDRESS, String BALANCE) {
         this.username = username;
         this.CUSTOMER_NAME = CUSTOMER_NAME;
+        this.password = password;
         this.ADDRESS = ADDRESS;
         this.BALANCE = BALANCE;
     }

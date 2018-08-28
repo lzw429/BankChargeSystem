@@ -1,10 +1,10 @@
-package service;
+package dao;
 
 import model.Bill;
 
 import java.util.List;
 
-public interface ChargeService {
+public interface ChargeDao {
     /**
      * @param CUSTOMER_ID 用户编号
      * @return 返回待支付账单

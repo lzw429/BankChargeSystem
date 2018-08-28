@@ -17,9 +17,12 @@ public class LoginAuthServlet extends BaseServlet {
 
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        super.doPost(request, response);
+
         HttpSession session = request.getSession();
         String username = request.getParameter("username");
         String password = request.getParameter("password");
+        System.out.println("登录验证：用户名 " + username + " 密码 " + password);
 
         UserService userService = new UserServiceImpl();
         User user = userService.login(username, password);
@@ -32,7 +35,7 @@ public class LoginAuthServlet extends BaseServlet {
             // 首次登录成功后，将用户名保存到 session 中
             final int maxInactiveInterval = 7 * 24 * 60 * 60;
             session.setMaxInactiveInterval(maxInactiveInterval);
-            session.setAttribute("username", username);
+            session.setAttribute("user", user);
             // 将 JSESSIONID 持久化
             Cookie c_JSESSIONID = new Cookie("JSESSIONID", session.getId());
             c_JSESSIONID.setMaxAge(maxInactiveInterval);
