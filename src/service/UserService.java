@@ -24,4 +24,10 @@ public interface UserService {
      * @return 登录成功 User对象，用户名或密码错误 null
      */
     User login(String username, String password);
+
+    /**
+     * @param username 用户名
+     * @return 余额
+     */
+    String balanceByCustomerID(String username);
 }

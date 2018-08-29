@@ -34,8 +34,8 @@ public class ReconcileServlet extends BaseServlet {
         List<AccountError> accountErrorList = null;
         try {
             reconcileService.reconcile(bankID, dateIn);
-            accountTotalList = reconcileService.accountTotal(dateIn);
-            accountErrorList = reconcileService.accountError(dateIn);
+            accountTotalList = reconcileService.accountTotal(dateIn, bankID);
+            accountErrorList = reconcileService.accountError(dateIn, bankID);
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("ReconcileServlet: " + "对账请求异常");

@@ -18,12 +18,12 @@ public class ReconcileServiceImpl implements ReconcileService {
     }
 
     @Override
-    public List<AccountTotal> accountTotal(String date) {
-        return reconcileDao.accountTotal(DateUtil.strToSqlDate(date));
+    public List<AccountTotal> accountTotal(String date, String bankID) {
+        return reconcileDao.accountTotal(DateUtil.strToSqlDate(date), bankID);
     }
 
     @Override
-    public List<AccountError> accountError(String date) {
-        return reconcileDao.accountError(DateUtil.strToSqlDate(date));
+    public List<AccountError> accountError(String date, String bankID) {
+        return reconcileDao.accountError(DateUtil.strToSqlDate(date), bankID);
     }
 }

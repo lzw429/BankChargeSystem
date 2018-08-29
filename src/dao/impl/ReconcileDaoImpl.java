@@ -35,20 +35,21 @@ public class ReconcileDaoImpl implements ReconcileDao {
     }
 
     @Override
-    public List<AccountTotal> accountTotal(java.sql.Date date) {
+    public List<AccountTotal> accountTotal(java.sql.Date date, String bankID) {
         CallableStatement callStm = null;
         List<AccountTotal> accountTotalList = new CopyOnWriteArrayList<>();
         try {
             conn = DBUtil.connectDB(); // 连接数据库
-            callStm = conn.prepareCall("BEGIN PACKAGE_QUERY_ACCOUNT_TOTAL.QUERY_ACCOUNT_TOTAL(?,?);END;");
+            callStm = conn.prepareCall("BEGIN PACKAGE_QUERY_ACCOUNT_TOTAL.QUERY_ACCOUNT_TOTAL(?,?,?);END;");
 
-            callStm.registerOutParameter(2, OracleTypes.CURSOR);
+            callStm.registerOutParameter(3, OracleTypes.CURSOR);
             callStm.setDate(1, date);
+            callStm.setString(2, bankID);
 
             callStm.execute();
 
             // 返回结果集
-            ResultSet rset = (ResultSet) callStm.getObject(2);
+            ResultSet rset = (ResultSet) callStm.getObject(3);
 
             // 确定结果集的每一行中的列数
             ResultSetMetaData rsetMeta = rset.getMetaData();
@@ -78,20 +79,21 @@ public class ReconcileDaoImpl implements ReconcileDao {
     }
 
     @Override
-    public List<AccountError> accountError(Date date) {
+    public List<AccountError> accountError(Date date, String bankID) {
         CallableStatement callStm = null;
         List<AccountError> accountErrorList = new CopyOnWriteArrayList<>();
         try {
             conn = DBUtil.connectDB(); // 连接数据库
-            callStm = conn.prepareCall("BEGIN PACKAGE_QUERY_ACCOUNT_ERROR.QUERY_ACCOUNT_ERROR(?,?);END;");
+            callStm = conn.prepareCall("BEGIN PACKAGE_QUERY_ACCOUNT_ERROR.QUERY_ACCOUNT_ERROR(?,?,?);END;");
 
-            callStm.registerOutParameter(2, OracleTypes.CURSOR);
+            callStm.registerOutParameter(3, OracleTypes.CURSOR);
             callStm.setDate(1, date);
+            callStm.setString(2, bankID);
 
             callStm.execute();
 
             // 返回结果集
-            ResultSet rset = (ResultSet) callStm.getObject(2);
+            ResultSet rset = (ResultSet) callStm.getObject(3);
 
             // 确定结果集的每一行中的列数
             ResultSetMetaData rsetMeta = rset.getMetaData();

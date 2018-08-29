@@ -26,4 +26,9 @@ public class UserServiceImpl implements UserService {
         System.out.println("login as " + username + " " + password);
         return null;
     }
+
+    @Override
+    public String balanceByCustomerID(String username) {
+        return userDao.balanceByCustomerID(username);
+    }
 }

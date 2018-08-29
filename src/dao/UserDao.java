@@ -29,4 +29,10 @@ public interface UserDao {
      * @return 用户名对应的用户
      */
     User find(String username);
+
+    /**
+     * @param username 用户名
+     * @return 余额
+     */
+    String balanceByCustomerID(String username);
 }

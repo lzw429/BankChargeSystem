@@ -1,6 +1,7 @@
 package service;
 
 import model.Bill;
+import model.PayLog;
 
 import java.util.List;
 
@@ -18,4 +19,17 @@ public interface ChargeService {
      * @return 支付成功 true，失败 false
      */
     boolean payByPr(String bankID, String prID, String amount);
+
+    /**
+     * @param username 用户编号
+     * @return 支付记录
+     */
+    List<PayLog> payLogByCustomerID(String username);
+
+    /**
+     * @param customerID 用户编号
+     * @param btID       银行转账流水号
+     * @return 冲正成功 true，失败 false
+     */
+    boolean payReverse(String customerID, String btID);
 }

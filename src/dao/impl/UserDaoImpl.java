@@ -61,4 +61,28 @@ public class UserDaoImpl implements UserDao {
             DBUtil.safeClose(conn);
         }
     }
+
+    @Override
+    public String balanceByCustomerID(String username) {
+        PreparedStatement stm = null;
+        String res;
+        try {
+            conn = DBUtil.connectDB(); // 连接数据库
+            stm = conn.prepareStatement("SELECT BALANCE FROM CUSTOMER WHERE  CUSTOMER_ID = ?"); // 获取用户基本信息
+            stm.setString(1, username);
+            ResultSet rs = stm.executeQuery();
+            if (rs.next()) {
+                res = rs.getString(1);
+                rs.close();
+            } else return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("UserDao: 获取余额失败");
+            return null;
+        } finally {
+            DBUtil.safeClose(stm);
+            DBUtil.safeClose(conn);
+        }
+        return res;
+    }
 }
