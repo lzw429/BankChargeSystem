@@ -1,14 +1,14 @@
 package model;
 
 public class AccountTotal {
-    String atID;
-    String accountDate;
-    String bankID;
-    String bankCount;
-    String bankAmount;
-    String corpCount;
-    String corpAmount;
-    String isSuccess;
+    private String atID;
+    private String accountDate;
+    private String bankID;
+    private String bankCount;
+    private String bankAmount;
+    private String corpCount;
+    private String corpAmount;
+    private String isSuccess;
 
     public String getAtID() {
         return atID;

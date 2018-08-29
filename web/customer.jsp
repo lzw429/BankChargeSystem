@@ -101,7 +101,7 @@
                             </td>
                             <td><%=aBill.getArrearage()%>
                             </td>
-                            <td><i id="pr_<%=aBill.getPrID()%>" class="material-icons">payment</i>
+                            <td><a data_pr="<%=aBill.getPrID()%>" class="payment"><i class="material-icons">payment</i></a>
                             </td>
                         </tr>
                         <%
@@ -116,6 +116,11 @@
             </div>
         </div>
     </div>
+
+    <script>
+
+    </script>
+
 
     <div class="row" style="margin-top: 25px;">
         <div class="col" style="width: 955px;">

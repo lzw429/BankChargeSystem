@@ -20,10 +20,9 @@
             <div class="card white">
                 <div class="card-content black-text">
                     <span class="card-title">对账</span>
-                    <form>
-                        <input type="text" class="datepicker" style="width: 810px" placeholder="选择日期">
-                        <button class="btn blue" type="submit">对账</button>
-                    </form>
+                    <input type="text" class="datepicker" style="width: 810px" placeholder="选择日期" id="date_in">
+                    <input type="text" style="width: 810px" placeholder="银行" id="bank_id">
+                    <button class="btn blue" onclick="reconcile_submit()" type="submit">对账</button>
                 </div>
             </div>
         </div>
@@ -65,7 +64,22 @@
             <div class="card white">
                 <div class="card-content black-text">
                     <span class="card-title">总账表</span>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>对账日期</th>
+                            <th>银行代码</th>
+                            <th>银行交易数</th>
+                            <th>银行交易总额</th>
+                            <th>电网交易数</th>
+                            <th>电网交易总额</th>
+                            <th>状态</th>
+                        </tr>
+                        </thead>
 
+                        <tbody id="general_ledger_tbody">
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -76,13 +90,81 @@
             <div class="card white">
                 <div class="card-content black-text">
                     <span class="card-title">对账异常</span>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>对账日期</th>
+                            <th>银行代码</th>
+                            <th>转账流水号</th>
+                            <th>用户</th>
+                            <th>银行交易额</th>
+                            <th>电网交易额</th>
+                            <th>信息</th>
+                        </tr>
+                        </thead>
 
+                        <tbody id="error_detail_tbody">
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
+    <script>
+        function reconcile_submit() {
+            if ($('#date_in').val() === "" || $('#bank_id').val() === "") {
+                M.toast({html: '请选择日期与银行'});
+                return;
+            }
 
+            $.post('/reconcile', {
+                date_in: $('#date_in').val(),
+                bank_id: $('#bank_id').val()
+            }, function (responseText) {
+                var responseObject = JSON.parse(responseText);
+                console.log(responseObject);
+
+                var errorHTML = "";
+                for (var i = 0; i < responseObject.accountErrorJson.length; i++) {
+                    var itemOfError = responseObject.accountErrorJson[i];
+                    itemOfError.accountTime = itemOfError.accountTime.substring(0, 10);
+                    errorHTML += "<tr>" +
+                        "<td>" + itemOfError.accountTime + "</td>" +
+                        "<td>" + itemOfError.bankID + "</td>" +
+                        "<td>" + itemOfError.btID + "</td>" +
+                        "<td>" + itemOfError.customerID + "</td>" +
+                        "<td>" + itemOfError.bankAmount + "</td>" +
+                        "<td>" + itemOfError.corpAmount + "</td>" +
+                        "<td>" + itemOfError.accountInfo + "</td>" +
+                        "</tr>";
+                }
+                $('#error_detail_tbody').html(errorHTML);
+
+                var totalHTML = "";
+                for (var i = 0; i < responseObject.accountTotalJson.length; i++) {
+                    var itemOfTotal = responseObject.accountTotalJson[i];
+                    itemOfTotal.accountDate = itemOfTotal.accountDate.substring(0, 10);
+                    totalHTML += "<tr>" +
+                        "<td>" + itemOfTotal.accountDate + "</td>" +
+                        "<td>" + itemOfTotal.bankID + "</td>" +
+                        "<td>" + itemOfTotal.bankCount + "</td>" +
+                        "<td>" + itemOfTotal.bankAmount + "</td>" +
+                        "<td>" + itemOfTotal.corpCount + "</td>" +
+                        "<td>" + itemOfTotal.corpAmount + "</td>";
+                    if (itemOfTotal.isSuccess === '00')
+                        totalHTML += "<td><i class='material-icons'>check</i></td>";
+                    else if (itemOfTotal.isSuccess === '01')
+                        totalHTML += "<td><i class='material-icons'>error_outline</i></td>";
+                    totalHTML += "</tr>";
+                }
+                $('#general_ledger_tbody').html(totalHTML);
+
+            }).fail(function () {
+                M.toast({html: '操作异常'});
+            });
+        }
+    </script>
 </div>
 </body>
 </html>

@@ -44,6 +44,7 @@ public class ChargeDaoImpl implements ChargeDao {
                 }
                 System.out.println(rsetRow);
             }
+            rset.close();
             System.out.println("ChargeDao: 获取待支付账单成功");
         } catch (Exception e) {
             e.printStackTrace();
@@ -53,5 +54,38 @@ public class ChargeDaoImpl implements ChargeDao {
             DBUtil.safeClose(conn);
         }
         return billList;
+    }
+
+    @Override
+    public boolean payByPr(String bankID, String prID, String amount) {
+        CallableStatement callStm = null;
+        boolean res = false;
+        try {
+            conn = DBUtil.connectDB(); // 连接数据库
+            callStm = conn.prepareCall("BEGIN payment_pr(?,?,?,?); END;");
+            callStm.registerOutParameter(4, OracleTypes.BOOLEAN);
+            callStm.setString(1, bankID);
+            callStm.setString(2, prID);
+            callStm.setString(3, amount);
+
+            callStm.execute();
+
+            // 返回结果
+            res = callStm.getBoolean(4);
+
+            System.out.println("ChargeDao: payByPr 请求数据库成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("ChargeDao: payByPr 请求数据库失败");
+        } finally {
+            DBUtil.safeClose(callStm);
+            DBUtil.safeClose(conn);
+        }
+        return res;
+    }
+
+    @Override
+    public boolean payReversal() {
+        return false;
     }
 }

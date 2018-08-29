@@ -1,12 +1,11 @@
-package dao;
+package service;
 
 import model.AccountError;
 import model.AccountTotal;
 
-import java.sql.Date;
 import java.util.List;
 
-public interface ReconcileDao {
+public interface ReconcileService {
     /**
      * 请求对账
      *
@@ -14,18 +13,17 @@ public interface ReconcileDao {
      * @param date   对账时间
      * @return 对账请求成功 true，对账请求失败 false
      */
-    boolean reconcile(String bankID, Date date);
+    boolean reconcile(String bankID, String date);
 
     /**
      * @param date 对账时间
      * @return account_total 表的信息
      */
-    List<AccountTotal> accountTotal(Date date);
+    List<AccountTotal> accountTotal(String date);
 
     /**
      * @param date 对账时间
      * @return account_error 表的信息
      */
-    List<AccountError> accountError(Date date);
-
+    List<AccountError> accountError(String date);
 }
