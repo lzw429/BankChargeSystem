@@ -1,5 +1,9 @@
 package dao;
 
+import model.MeterLog;
+
+import java.util.List;
+
 public interface MeterDao {
 
     /**
@@ -11,4 +15,9 @@ public interface MeterDao {
      * @return 抄表成功 true；失败 false
      */
     boolean meterRead(java.sql.Date mrDate, String deviceID, String customerID, String mtNumber, String mrID);
+
+    /**
+     * @return 所有抄表记录
+     */
+    List<MeterLog> meterLog();
 }

@@ -2,9 +2,12 @@ package dao.impl;
 
 import Util.DBUtil;
 import dao.ChargeDao;
+import model.Balance;
 import model.Bill;
+import model.MeterLog;
 import model.PayLog;
 import oracle.jdbc.OracleTypes;
+import service.MeterService;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -58,22 +61,31 @@ public class ChargeDaoImpl implements ChargeDao {
     }
 
     @Override
-    public boolean payByPr(String bankID, String prID, String amount) {
+    public boolean payByPr(String bankID, String prID, String amount, String customerID) {
         CallableStatement callStm = null;
         boolean res = false;
         try {
             conn = DBUtil.connectDB(); // 连接数据库
-            callStm = conn.prepareCall("BEGIN payment_pr(?,?,?,?); END;");
-            callStm.registerOutParameter(4, OracleTypes.INTEGER);
-            callStm.setString(1, bankID);
-            callStm.setString(2, prID);
-            callStm.setString(3, amount);
-
-            callStm.execute();
-
-            // 返回结果
-            res = callStm.getInt(4) == 1;
-
+            if (prID.equals("0")) {
+                System.out.println("ChargeDao: 尝试支付所有账单");
+                callStm = conn.prepareCall("BEGIN payment(?,?,?,?); END;");
+                callStm.registerOutParameter(4, OracleTypes.INTEGER);
+                callStm.setString(1, bankID);
+                callStm.setString(2, customerID);
+                callStm.setString(3, amount);
+                callStm.execute();
+                res = callStm.getInt(4) == 1;
+            } else {
+                System.out.println("ChargeDao: 尝试支付账单 " + prID);
+                callStm = conn.prepareCall("BEGIN payment_pr(?,?,?,?); END;");
+                callStm.registerOutParameter(4, OracleTypes.INTEGER);
+                callStm.setString(1, bankID);
+                callStm.setString(2, prID);
+                callStm.setString(3, amount);
+                callStm.execute();
+                // 返回结果
+                res = callStm.getInt(4) == 1;
+            }
             System.out.println("ChargeDao: payByPr 请求数据库成功");
         } catch (Exception e) {
             e.printStackTrace();
@@ -151,5 +163,74 @@ public class ChargeDaoImpl implements ChargeDao {
             DBUtil.safeClose(conn);
         }
         return res;
+    }
+
+    @Override
+    public boolean payReverseBalance(String customerID, String balanceID) {
+        CallableStatement callStm = null;
+        boolean res;
+        try {
+            conn = DBUtil.connectDB(); // 连接数据库
+            callStm = conn.prepareCall("BEGIN PAY_REVERSAL_BALANCE(?,?,?); END;");
+            callStm.registerOutParameter(3, OracleTypes.INTEGER);
+            callStm.setString(1, customerID);
+            callStm.setString(2, balanceID);
+
+            callStm.execute();
+
+            // 返回结果
+            res = callStm.getInt(3) == 1;
+
+            System.out.println("ChargeDao: payReverseBalance 请求数据库成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("ChargeDao: payReverseBalance 请求数据库失败");
+            res = false;
+        } finally {
+            DBUtil.safeClose(callStm);
+            DBUtil.safeClose(conn);
+        }
+        return res;
+    }
+
+    @Override
+    public List<Balance> balanceByCustomerID(String username) {
+        CallableStatement callStm = null;
+        List<Balance> balanceList = new CopyOnWriteArrayList<>();
+        try {
+            conn = DBUtil.connectDB(); // 连接数据库
+            callStm = conn.prepareCall("BEGIN PACKAGE_QUERY_BALANCE.QUERY_BALANCE(?,?); END;");
+            callStm.registerOutParameter(2, OracleTypes.CURSOR);
+            callStm.setString(1, username);
+            callStm.execute();
+
+            // 返回结果集
+            ResultSet rset = (ResultSet) callStm.getObject(2);
+
+            // 确定结果集的每一行中的列数
+            ResultSetMetaData rsetMeta = rset.getMetaData();
+            int count = rsetMeta.getColumnCount();
+
+            // 返回结果
+            while (rset.next()) {
+                Balance balance = new Balance(rset.getString(1), rset.getString(2), rset.getString(3), rset.getString(4), rset.getString(5), rset.getString(6), rset.getString(7), rset.getString(8), rset.getString(9));
+                balanceList.add(balance);
+                // 打印结果
+                StringBuilder rsetRow = new StringBuilder();
+                for (int i = 1; i <= count; i++) {
+                    rsetRow.append(" ").append(rset.getString(i));
+                }
+                System.out.println(rsetRow);
+            }
+            rset.close();
+            System.out.println("ChargeDao: 获取收支记录成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("ChargeDao: 获取收支记录失败");
+        } finally {
+            DBUtil.safeClose(callStm);
+            DBUtil.safeClose(conn);
+        }
+        return balanceList;
     }
 }

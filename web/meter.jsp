@@ -1,3 +1,7 @@
+<%@ page import="model.MeterLog" %>
+<%@ page import="service.MeterService" %>
+<%@ page import="service.impl.MeterServiceImpl" %>
+<%@ page import="java.util.List" %>
 <%--
   Created by IntelliJ IDEA.
   User: 舒意恒
@@ -11,6 +15,10 @@
     <%@ include file="header.jsp" %>
     <title>抄表 - 智慧电网</title>
 </head>
+<%
+    MeterService meterService = new MeterServiceImpl();
+    List<MeterLog> meterLogList = meterService.meterLog();
+%>
 <body>
 <div class="container">
     <div class="row" style="margin-top: 25px;">
@@ -87,13 +95,62 @@
                 mtNumber: $('#meter_read').val(),
                 mrID: $('#mr_id').val()
             }, function (responseText) {
-                M.toast({html: '抄表完成'});
-                location.reload();
+                if (responseText === "failed") {
+                    M.toast({html: '抄表数据错误'});
+                } else {
+                    M.toast({html: '抄表完成'});
+                    location.reload();
+                }
             }).fail(function () {
                 M.toast({html: '操作异常'});
             })
         }
     </script>
+    <!--待支付账单 卡片-->
+    <div class="row" style="margin-top: 25px;">
+        <div class="col" style="width: 955px;">
+            <div class="card white">
+                <div class="card-content black-text">
+                    <span class="card-title">账单</span>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>抄表日期</th>
+                            <th>设备号</th>
+                            <th>用户编号</th>
+                            <th>读数</th>
+                            <th>抄表员编号</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <%if (meterLogList == null || meterLogList.size() == 0) {%>
+                        <tr></tr>
+                        <%
+                        } else {
+                            for (MeterLog aMeterLog : meterLogList) {
+                        %>
+                        <tr>
+                            <td><%=aMeterLog.getMtDate().substring(0, 10)%>
+                            </td>
+                            <td><%=aMeterLog.getDeviceID()%>
+                            </td>
+                            <td><%=aMeterLog.getCustomerID()%>
+                            </td>
+                            <td><%=aMeterLog.getMtNumber()%>
+                            </td>
+                            <td><%=aMeterLog.getMrID()%>
+                            </td>
+                        </tr>
+                        <%
+                                }
+                            }%>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 </body>

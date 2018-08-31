@@ -1,6 +1,6 @@
 package service.impl;
 
-import Util.DateUtil;
+import Util.FormatUtil;
 import dao.ReconcileDao;
 import dao.impl.ReconcileDaoImpl;
 import model.AccountError;
@@ -14,16 +14,16 @@ public class ReconcileServiceImpl implements ReconcileService {
 
     @Override
     public boolean reconcile(String bankID, String date) {
-        return reconcileDao.reconcile(bankID, DateUtil.strToSqlDate(date));
+        return reconcileDao.reconcile(bankID, FormatUtil.strToSqlDate(date));
     }
 
     @Override
     public List<AccountTotal> accountTotal(String date, String bankID) {
-        return reconcileDao.accountTotal(DateUtil.strToSqlDate(date), bankID);
+        return reconcileDao.accountTotal(FormatUtil.strToSqlDate(date), bankID);
     }
 
     @Override
     public List<AccountError> accountError(String date, String bankID) {
-        return reconcileDao.accountError(DateUtil.strToSqlDate(date), bankID);
+        return reconcileDao.accountError(FormatUtil.strToSqlDate(date), bankID);
     }
 }

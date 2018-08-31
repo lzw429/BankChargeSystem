@@ -23,8 +23,13 @@ public class PayReverseServlet extends BaseServlet {
         ChargeService chargeService = new ChargeServiceImpl();
         try {
             String customerID = request.getParameter("customerID");
-            String btID = request.getParameter("btID");
-            chargeService.payReverse(customerID, btID);
+            String reverseID = request.getParameter("reverseID");
+            String reverseType = request.getParameter("reverseType");
+            if (reverseType.equals("bank")) {
+                chargeService.payReverse(customerID, reverseID);
+            } else if (reverseType.equals("balance")) {
+                chargeService.payReverseBalance(customerID, reverseID);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("PayReverseServlet: 冲正请求异常");

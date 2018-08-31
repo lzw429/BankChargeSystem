@@ -21,15 +21,16 @@ public class MeterReadServlet extends BaseServlet {
             String customerID = request.getParameter("customerID");
             String mtNumber = request.getParameter("mtNumber");
             String mrID = request.getParameter("mrID");
+            response.setContentType("text/plain");
             if (meterService.meterRead(mrDate, deviceID, customerID, mtNumber, mrID)) {
                 System.out.println("MeterReadServlet: 抄表请求成功");
-                response.setContentType("text/plain");
                 response.getWriter().write("/reader");
             } else {
-                response.sendError(403);
+                response.getWriter().write("failed");
             }
         } catch (Exception e) {
             e.printStackTrace();
+            response.sendError(403);
             System.out.println("MeterReadServlet: 抄表请求失败");
         }
     }

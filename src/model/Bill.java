@@ -1,6 +1,8 @@
 package model;
 
-public class Bill {
+import java.io.Serializable;
+
+public class Bill implements Serializable {
     private String deviceID; // 设备号
     private String payDate; // 应缴日期
     private String alreadyFee; // 已缴费用

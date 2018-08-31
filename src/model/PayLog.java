@@ -1,6 +1,8 @@
 package model;
 
-public class PayLog {
+import java.io.Serializable;
+
+public class PayLog implements Serializable {
     private String payID;
     private String customerID;
     private String payTime;

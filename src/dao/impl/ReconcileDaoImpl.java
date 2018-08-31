@@ -102,6 +102,10 @@ public class ReconcileDaoImpl implements ReconcileDao {
             // 返回结果
             while (rset.next()) {
                 AccountError accountError = new AccountError(rset.getString(1), rset.getString(2), rset.getString(3), rset.getString(4), rset.getString(5), rset.getString(6), rset.getString(7), rset.getString(8));
+                if (accountError.getBankAmount() == null)
+                    accountError.setBankAmount("无");
+                if (accountError.getCorpAmount() == null)
+                    accountError.setCorpAmount("无");
                 accountErrorList.add(accountError);
                 // 打印结果
                 String rsetRow = "";

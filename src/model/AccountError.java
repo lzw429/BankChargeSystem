@@ -1,6 +1,8 @@
 package model;
 
-public class AccountError {
+import java.io.Serializable;
+
+public class AccountError implements Serializable {
     private String aeID;
     private String accountTime;
     private String bankID;

@@ -1,3 +1,4 @@
+<%@ page import="model.Balance" %>
 <%@ page import="model.Bill" %>
 <%@ page import="model.PayLog" %>
 <%@ page import="model.User" %>
@@ -29,6 +30,8 @@
     UserService userService = new UserServiceImpl();
     List<Bill> billList = chargeService.toBePaid(user.getUsername());
     List<PayLog> payLogList = chargeService.payLogByCustomerID(user.getUsername());
+    List<Balance> balanceList = chargeService.balanceByCustomerID(user.getUsername());
+    double arrearageSum = 0;
 %>
 <body class="grey lighten-5">
 <!-- Navbar goes here -->
@@ -55,19 +58,18 @@
                             </td>
                             <td><%=user.getADDRESS()%> <!--地址-->
                             </td>
-                            <td><%=userService.balanceByCustomerID(user.getUsername())%> <!--余额-->
+                            <td><%=String.format("%.2f", Double.parseDouble(userService.balanceByCustomerID(user.getUsername())))  %>
+                                <!--余额-->
                             </td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="card-action">
-                    <a href="#">充值</a>
-                </div>
             </div>
         </div>
     </div>
 
+    <!--待支付账单 卡片-->
     <div class="row" style="margin-top: 25px;">
         <div class="col" style="width: 955px;">
             <div class="card white">
@@ -91,31 +93,79 @@
                         <tr></tr>
                         <%
                         } else {
-                            for (Bill aBill : billList) {
+                            double deviceArrearageSum = 0;
+                            for (int i = 0, billListSize = billList.size(); i < billListSize; i++) {
+                                Bill aBill = billList.get(i);
+                                if ((i != 0 && !billList.get(i - 1).getDeviceID().equals(billList.get(i).getDeviceID()))) {
+
+                        %>
+                        <td><b><%=billList.get(i - 1).getDeviceID() %>
+                        </b>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td><b><%=String.format("%.2f", deviceArrearageSum) %>
+                        </b>
+                        </td>
+                        <%
+                                deviceArrearageSum = 0;
+                            }
+                            deviceArrearageSum += Double.parseDouble(aBill.getArrearage());
+                        %>
+                        <%
+                            arrearageSum += Double.parseDouble(aBill.getArrearage());
                         %>
                         <tr>
-                            <td><%=aBill.getDeviceID()%>
+                            <td><%=aBill.getDeviceID() %>
                             </td>
-                            <td><%=aBill.getPayDate()%>
+                            <td><%=aBill.getPayDate() %>
                             </td>
-                            <td><%=aBill.getAlreadyFee()%>
+                            <td><%=String.format("%.2f", Double.parseDouble(aBill.getAlreadyFee())) %>
                             </td>
-                            <td><%=aBill.getRemainFee()%>
+                            <td><%=String.format("%.2f", Double.parseDouble(aBill.getRemainFee())) %>
                             </td>
-                            <td><%=aBill.getLateFee()%>
+                            <td><%=String.format("%.2f", Double.parseDouble(aBill.getLateFee())) %>
                             </td>
-                            <td><%=aBill.getArrearage()%>
+                            <td><%=String.format("%.2f", Double.parseDouble(aBill.getArrearage()))%>
                             </td>
                             <td><a data_pr="<%=aBill.getPrID()%>" class="payment modal-trigger" href="#pay_modal"
-                                   onclick="prID=<%=aBill.getPrID()%>; document.getElementById('pay_title').innerText='支付账单 ' + prID;"><i
-                                    class="material-icons">payment</i></a>
+                                   onclick="prID=<%=aBill.getPrID()%>;
+                                           document.getElementById('pay_title').innerText='支付账单 ' + prID;"><i
+                                    class="material-icons"> payment </i></a>
                             </td>
                         </tr>
                         <%
-                                }
+                            }%>
+                        <td><b><%=billList.get(billList.size() - 1).getDeviceID() %>
+                        </b>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td><b><%=String.format("%.2f", deviceArrearageSum) %>
+                        </b>
+                        </td>
+                        <%
                             }%>
                         </tbody>
                     </table>
+                </div>
+                <div class="card-action">
+                    <a href="#pay_modal" class="modal-trigger"
+                       onclick="prID=0;document.getElementById('pay_title').innerText='支付所有账单'">结算(¥<%=String.format("%.2f", arrearageSum)%>
+                        )
+                    </a>
                 </div>
             </div>
         </div>
@@ -150,7 +200,7 @@
                 </p>
                 <p>
                     <label>
-                        <input name="group1" type="radio" checked/>
+                        <input name="group1" type="radio" id="balance_pay_radio" onclick="bankID='';" checked/>
                         <span>余额</span>
                     </label>
                 </p>
@@ -158,7 +208,7 @@
         </div>
         <div class="modal-footer">
             <a href="#!" class="modal-close waves-effect waves-green btn-flat">取消</a>
-            <a href="#!" class="modal-close waves-effect waves-green btn-flat" onclick="payByPR()">确定</a>
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat" onclick="payPrByBank()">确定</a>
         </div>
     </div>
 
@@ -170,14 +220,16 @@
             bankID = "";
         });
 
-        function payByPR() {
-            if ($('#bank_amount').val() !== "")
+        function payPrByBank() { // 使用银行卡缴费
+            if ($('#bank_amount').val() !== "" && document.getElementById("balance_pay_radio").checked === false)
                 payAmount = $('#bank_amount').val();
+            else payAmount = 0;
 
             $.get('${pageContext.request.contextPath}/payPr', {
                 prID: prID,
                 payAmount: payAmount,
-                bankID: bankID
+                bankID: bankID,
+                customerID: <%=user.getUsername()%>
             }, function (responseText) {
                 M.toast({html: '支付完成'});
                 location.reload();
@@ -187,6 +239,7 @@
         }
     </script>
 
+    <!--支付记录 卡片-->
     <div class="row" style="margin-top: 25px;">
         <div class="col" style="width: 955px;">
             <div class="card white">
@@ -213,9 +266,9 @@
                             for (PayLog aPayLog : payLogList) {
                         %>
                         <tr>
-                            <td><%=aPayLog.getPayTime()%>
+                            <td><%=aPayLog.getPayTime().substring(0, 19)%>
                             </td>
-                            <td><%=aPayLog.getPayAmount()%>
+                            <td><%=String.format("%.2f", Double.parseDouble(aPayLog.getPayAmount())) %>
                             </td>
                             <td><% switch (aPayLog.getPayType()) {
                                 case "01":
@@ -234,7 +287,7 @@
                             <td><% if (aPayLog.getNotes() == null) {%>无<%} else {%><%=aPayLog.getNotes()%><%}%>
                             </td>
                             <td><% if (aPayLog.getPayType().equals("01")) {%>
-                                <a onclick=" btID=<%=aPayLog.getBtID()%>;payReverse(); " href="">
+                                <a onclick="btID=<%=aPayLog.getBtID()%>;payReverse(); " href="">
                                     <i class="material-icons">settings_backup_restore</i>
                                 </a>
                                 <%}%>
@@ -251,14 +304,16 @@
     </div>
 
     <script>
-        btID = 0;
+        btID = -1;
 
-        function payReverse() {
-            if (btID === 0) return;
+        function payReverse() { // 银行卡冲正请求
+            if (btID === -1) return;
+            M.toast({html: '请求冲正中...'});
 
             $.get('${pageContext.request.contextPath}/payReverse', {
-                btID: btID,
-                customerID: <%=user.getUsername()%>
+                reverseID: btID,
+                customerID: <%=user.getUsername()%>,
+                reverseType: "bank"
             }, function (responseText) {
                 M.toast({html: '冲正完成'});
                 location.reload();
@@ -268,6 +323,88 @@
         }
     </script>
 
+    <!--收支明细 卡片-->
+    <div class="row" style="margin-top: 25px;">
+        <div class="col" style="width: 955px;">
+            <div class="card white">
+                <div class="card-content black-text">
+                    <span class="card-title">收支记录</span>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>收入/支出</th>
+                            <th>类型</th>
+                            <th>备注</th>
+                            <th>冲正</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <%if (balanceList == null || balanceList.size() == 0) {%>
+                        <tr></tr>
+                        <%
+                        } else {
+                            for (Balance abalance : balanceList) {
+                        %>
+                        <tr>
+                            <td><%=abalance.getChangeTime().substring(0, 19)%>
+                            </td>
+                            <td><%=String.format("%.2f", Double.parseDouble(abalance.getBalanceDelta()))%>
+                            </td>
+                            <td><% switch (abalance.getBalanceType()) {
+                                case "0":
+                            %>银行卡支付<% break;
+                                case "1":
+                            %>充值<% break;
+                                case "2":
+                            %>余额支付<% break;
+                                case "3":
+                            %>冲正<% break;
+                                case "4":
+                            %>余额已冲正<% break;
+                                default:
+                                    break;
+                            }
+                            %>
+                            </td>
+                            <td><% if (abalance.getNotes() == null) {%>无<%} else {%><%=abalance.getNotes()%><%}%>
+                            </td>
+                            <td><% if (abalance.getBalanceType().equals("2")) {%>
+                                <a onclick="balanceID = <%=abalance.getBalanceID()%>; payReverseBalance();" href="">
+                                    <i class="material-icons">settings_backup_restore</i>
+                                </a>
+                                <%}%>
+                            </td>
+                        </tr>
+                        <%
+                                }
+                            }%>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        balanceID = -1;
+
+        function payReverseBalance() { // 余额冲正请求
+            if (balanceID === -1) return;
+            M.toast({html: '请求冲正中...'});
+
+            $.get('${pageContext.request.contextPath}/payReverse', {
+                reverseID: balanceID,
+                customerID: <%=user.getUsername()%>,
+                reverseType: "balance"
+            }, function (responseText) {
+                M.toast({html: '冲正完成'});
+                location.reload();
+            }).fail(function () {
+                M.toast({html: '操作异常'});
+            })
+        }
+    </script>
 </div>
 </body>
 </html>

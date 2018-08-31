@@ -24,9 +24,10 @@ public class PayPrServlet extends BaseServlet {
         String prID = request.getParameter("prID");
         String payAmount = request.getParameter("payAmount");
         String bankID = request.getParameter("bankID");
+        String customerID  = request.getParameter("customerID");
 
         try {
-            chargeService.payByPr(bankID, prID, payAmount);
+            chargeService.payByPr(bankID, prID, payAmount, customerID);
             response.setContentType("text/plain");
             response.getWriter().write("/customer");
         } catch (Exception e) {
