@@ -111,7 +111,7 @@
         <div class="col" style="width: 955px;">
             <div class="card white">
                 <div class="card-content black-text">
-                    <span class="card-title">账单</span>
+                    <span class="card-title">记录</span>
                     <table>
                         <thead>
                         <tr>
